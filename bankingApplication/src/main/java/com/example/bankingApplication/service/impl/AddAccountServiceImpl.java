@@ -8,6 +8,10 @@ import com.example.bankingApplication.service.AddCoountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+
 @Service
 public class AddAccountServiceImpl implements AddCoountService {
     private AccountsRepo accountsRepo;
@@ -37,5 +41,57 @@ public class AddAccountServiceImpl implements AddCoountService {
             return AccountMapper.AccountToDto(account);
 
 
+    }
+
+    @Override
+    public AccountDto deposit(Long id, Double amount) {
+        Account account=accountsRepo.findById(id).orElseThrow(()->{
+            throw new RuntimeException("account is not fount with that id");
+
+        });
+        double totalAmount=account.getBalance()+amount;
+        account.setBalance(totalAmount);
+      Account finalresultAccount=  accountsRepo.save(account);
+        AccountDto accountDto=AccountMapper.AccountToDto(finalresultAccount);
+
+        return accountDto;
+    }
+
+    @Override
+    public AccountDto withDraw(Long id, Double amount) {
+
+        Account account=accountsRepo.findById(id).orElseThrow(()->{
+            throw new RuntimeException("account is not fount with that id");
+
+        });
+        if(account.getBalance()>amount) {
+            double remainingAmount = account.getBalance() - amount;
+
+            account.setBalance(remainingAmount);
+        }
+        else{
+            throw new RuntimeException("Insufiecent amount");
+        }
+        Account finalAccount=accountsRepo.save(account);
+
+
+        return AccountMapper.AccountToDto(finalAccount);
+    }
+
+    @Override
+    public List<AccountDto> getAllAccounts() {
+        List<Account> accounts=accountsRepo.findAll();
+        List<AccountDto> listofAccount=accounts.stream().map((Account account)->AccountMapper.AccountToDto(account)).collect(Collectors.toList());
+
+        return listofAccount;
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Account account=accountsRepo.findById(id).orElseThrow(()-> {
+            throw new RuntimeException("account is not exist with this id " + id);
+
+        });
+        accountsRepo.deleteById(id);
     }
 }
