@@ -2,6 +2,7 @@ package com.example.bankingApplication.service.impl;
 
 import com.example.bankingApplication.dto.AccountDto;
 import com.example.bankingApplication.entity.Account;
+import com.example.bankingApplication.exception.AccountException;
 import com.example.bankingApplication.mapper.AccountMapper;
 import com.example.bankingApplication.repo.AccountsRepo;
 import com.example.bankingApplication.service.AddCoountService;
@@ -34,7 +35,7 @@ public class AddAccountServiceImpl implements AddCoountService {
     @Override
     public AccountDto getAccountById(Long id) {
         Account account=accountsRepo.findById(id).orElseThrow(()-> {
-            throw new RuntimeException("Accoount is not found with this id");
+            throw new AccountException("Accoount is not found with this id");
         });
 
 
@@ -46,7 +47,7 @@ public class AddAccountServiceImpl implements AddCoountService {
     @Override
     public AccountDto deposit(Long id, Double amount) {
         Account account=accountsRepo.findById(id).orElseThrow(()->{
-            throw new RuntimeException("account is not fount with that id");
+            throw new AccountException("account is not fount with that id");
 
         });
         double totalAmount=account.getBalance()+amount;
@@ -61,7 +62,7 @@ public class AddAccountServiceImpl implements AddCoountService {
     public AccountDto withDraw(Long id, Double amount) {
 
         Account account=accountsRepo.findById(id).orElseThrow(()->{
-            throw new RuntimeException("account is not fount with that id");
+            throw new AccountException("account is not fount with that id");
 
         });
         if(account.getBalance()>amount) {
@@ -70,7 +71,7 @@ public class AddAccountServiceImpl implements AddCoountService {
             account.setBalance(remainingAmount);
         }
         else{
-            throw new RuntimeException("Insufiecent amount");
+            throw new AccountException("Insufiecent amount");
         }
         Account finalAccount=accountsRepo.save(account);
 
@@ -89,7 +90,7 @@ public class AddAccountServiceImpl implements AddCoountService {
     @Override
     public void deleteById(Long id) {
         Account account=accountsRepo.findById(id).orElseThrow(()-> {
-            throw new RuntimeException("account is not exist with this id " + id);
+            throw new AccountException("account is not exist with this id " + id);
 
         });
         accountsRepo.deleteById(id);
